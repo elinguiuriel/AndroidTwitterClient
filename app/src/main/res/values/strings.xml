@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Twitter Client</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_photos">Flickr Photos</string>
+    <string name="login_label">Log in</string>
+    <string name="title_activity_time_line">Home</string>
+    <string name="empty_list_label"></string>
+    <string name="retweeted_user_name">%1$s retweeted</string>
+    <string name="signout">Sign out</string>
+    <string name="signin">Sign in with Twitter</string>
+    <string name="welcome">Hello. Welcome to Twitter Client.</string>
+    <string name="compose">compose</string>
+    <string name="tweetHint">What\'s happening?</string>
+
+</resources>

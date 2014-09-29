@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.codepath.shivagss.twitterclient.activity.TimeLineActivity">
+    <item
+        android:id="@+id/signout"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/signout"/>
+    <item
+        android:id="@+id/compose"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_bottom_bar_compose_default"
+        android:title="@string/compose"/>
+</menu>
