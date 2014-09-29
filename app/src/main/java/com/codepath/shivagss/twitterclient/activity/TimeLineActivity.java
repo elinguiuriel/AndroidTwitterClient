@@ -2,6 +2,7 @@ package com.codepath.shivagss.twitterclient.activity;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
@@ -17,6 +18,7 @@ import com.codepath.shivagss.twitterclient.adapter.TimeLineTweetsAdapter;
 import com.codepath.shivagss.twitterclient.fragment.CreateTweetFragment;
 import com.codepath.shivagss.twitterclient.model.Tweet;
 import com.codepath.shivagss.twitterclient.restclienttemplate.TwitterClientApp;
+import com.codepath.shivagss.twitterclient.restclienttemplate.TwitterLoginActivity;
 import com.codepath.shivagss.twitterclient.restclienttemplate.TwitterRestClient;
 import com.codepath.shivagss.twitterclient.utils.EndlessScrollListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -121,7 +123,7 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
 
     private void onTwitterSignout() {
         mClient.clearAccessToken();
-        finish();
+        startActivity(new Intent(this, TwitterLoginActivity.class));
     }
 
     @Override
