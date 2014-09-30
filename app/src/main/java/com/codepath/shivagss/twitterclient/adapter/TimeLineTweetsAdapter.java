@@ -2,6 +2,7 @@ package com.codepath.shivagss.twitterclient.adapter;
 
 import android.content.Context;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
         Button btnRetweet;
         Button btnFavorite;
         Button btnFollowing;
+        ImageView ivMedia;
 
     }
 
@@ -61,6 +63,7 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
             viewHolder.btnRetweet = (Button) convertView.findViewById(R.id.btnRetweet);
             viewHolder.btnFavorite = (Button) convertView.findViewById(R.id.btnFavorite);
             viewHolder.btnFollowing = (Button) convertView.findViewById(R.id.btnFollow);
+            viewHolder.ivMedia = (ImageView) convertView.findViewById(R.id.ivMedia);
 
             convertView.setTag(viewHolder);
         } else {
@@ -106,6 +109,13 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
         viewHolder.ivProfilePic.setImageResource(0);
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.displayImage(tweet.getUser().getUrl(), viewHolder.ivProfilePic);
+
+        if(TextUtils.isEmpty(tweet.getMediaURL())){
+            viewHolder.ivMedia.setVisibility(View.GONE);
+        }else{
+            viewHolder.ivMedia.setVisibility(View.VISIBLE);
+            imageLoader.displayImage(tweet.getMediaURL(), viewHolder.ivMedia);
+        }
 
         return convertView;
     }

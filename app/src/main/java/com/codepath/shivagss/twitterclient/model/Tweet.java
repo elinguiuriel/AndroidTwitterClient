@@ -29,6 +29,16 @@ public class Tweet {
     private boolean favorited;
     private boolean retweeted;
 
+    public String getMediaURL() {
+        return mediaURL;
+    }
+
+    public void setMediaURL(String mediaURL) {
+        this.mediaURL = mediaURL;
+    }
+
+    private String mediaURL;
+
     public static Tweet fromJson(JSONObject tweet) {
 
         Tweet _tweet = new Tweet();
@@ -51,6 +61,11 @@ public class Tweet {
                 JSONObject retweetStatus = tweet.getJSONObject("retweeted_status");
                 _tweet.user = User.fromJson(retweetStatus.getJSONObject("user"));
                 _tweet.favoriteCount = formatter.format(retweetStatus.getLong("favorite_count"));
+            }
+
+            if(!tweet.getJSONObject("entities").isNull("media")){
+                JSONArray array = tweet.getJSONObject("entities").getJSONArray("media");
+                _tweet.mediaURL = array.getJSONObject(0).getString("media_url");
             }
 
         } catch (JSONException ex) {

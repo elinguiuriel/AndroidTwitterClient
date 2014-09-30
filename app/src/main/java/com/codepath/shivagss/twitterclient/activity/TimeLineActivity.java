@@ -137,7 +137,7 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
 
     private void onTwitterSignout() {
         mClient.clearAccessToken();
-        startActivity(new Intent(this, TwitterLoginActivity.class));
+        startActivity(new Intent(this, TwitterLoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     }
 
     @Override

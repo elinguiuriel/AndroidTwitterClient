@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -42,6 +43,7 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
     private ImageButton btnShare;
     private ImageButton btnDelete;
     private User mLoggedUser;
+    private ImageView ivMedia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +150,14 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
         }else{
             btnDelete.setVisibility(View.GONE);
         }
+
+        if(TextUtils.isEmpty(tweet.getMediaURL())){
+            ivMedia.setVisibility(View.GONE);
+        }else{
+            ivMedia.setVisibility(View.VISIBLE);
+            imageLoader.displayImage(tweet.getMediaURL(), ivMedia);
+        }
+
     }
 
     private void setupViews() {
@@ -168,6 +178,7 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
         tvFavorites = (TextView) findViewById(R.id.tvFavorites);
         ivVerified = (ImageView) findViewById(R.id.ivVerified);
         btnFollowing = (ImageButton) findViewById(R.id.btnFollow);
+        ivMedia = (ImageView) findViewById(R.id.ivMedia);
 
         btnReply.setOnClickListener(new View.OnClickListener() {
             @Override
