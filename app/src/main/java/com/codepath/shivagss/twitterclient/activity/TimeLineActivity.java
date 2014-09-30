@@ -68,15 +68,20 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
         lvTweets.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
-                long maxID = mTweetsList.get(mTweetsList.size()-1).getId();
-                populateTimeLine(""+maxID);
+                if(mTweetsList.size() > 0) {
+                    long maxID = mTweetsList.get(mTweetsList.size() - 1).getId();
+                    populateTimeLine("" + maxID);
+                }
             }
         });
         lvTweets.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                long tweetID = mTweetsAdapter.getItem(position).getId();
-                startTweetDetailsActivity(tweetID);
+                Tweet tweet = mTweetsAdapter.getItem(position);
+                if(tweet != null) {
+                    long tweetID = tweet.getId();
+                    startTweetDetailsActivity(tweetID);
+                }
             }
         });
 
@@ -137,7 +142,9 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
 
     private void onTwitterSignout() {
         mClient.clearAccessToken();
-        startActivity(new Intent(this, TwitterLoginActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        startActivity(new Intent(this, TwitterLoginActivity.class).
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     }
 
     @Override

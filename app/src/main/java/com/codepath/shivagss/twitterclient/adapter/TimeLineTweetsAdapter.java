@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.codepath.shivagss.twitterclient.R;
@@ -21,6 +22,10 @@ import java.util.ArrayList;
  * Created by Sandeep on 9/28/2014.
  */
 public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
+
+    private static final int VIEW_TYPE_ITEM = 0;
+    private static final int VIEW_TYPE_LOADING = 1;
+    private View sProgress = new ProgressBar(getContext(), null, android.R.attr.progressBarStyleSmall);
 
     private class ViewHolder {
         ImageView ivRetweetIcon;
@@ -38,15 +43,54 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
 
     }
 
-    public TimeLineTweetsAdapter(Context context, ArrayList objects) {
+    protected ArrayList<Tweet> dataList;
+
+    public TimeLineTweetsAdapter(Context context, ArrayList<Tweet> objects) {
         super(context, R.layout.item_tweet, objects);
+        dataList = objects;
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return getItemViewType(position) == VIEW_TYPE_ITEM;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getCount() {
+        return dataList.size()+1;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return (position >= dataList.size()) ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
+    }
+
+    @Override
+    public Tweet getItem(int position) {
+        return (getItemViewType(position) == VIEW_TYPE_ITEM) ? dataList.get(position) : null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return (getItemViewType(position) == VIEW_TYPE_ITEM) ? position : -1;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= getCount()) return convertView;
+
+        if(getItemViewType(position) == VIEW_TYPE_LOADING){
+            getFooterView();
+        }
 
         Tweet tweet = getItem(position);
+
+        if(tweet == null) return getFooterView();
+
         ViewHolder viewHolder;
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).
@@ -118,5 +162,9 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
         }
 
         return convertView;
+    }
+
+    private View getFooterView() {
+        return sProgress;
     }
 }
