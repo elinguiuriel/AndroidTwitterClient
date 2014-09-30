@@ -9,6 +9,6 @@
     <item
         android:id="@+id/compose"
         android:showAsAction="always"
-        android:icon="@drawable/ic_bottom_bar_compose_default"
+        android:icon="@drawable/ic_float_compose_default"
         android:title="@string/compose"/>
 </menu>

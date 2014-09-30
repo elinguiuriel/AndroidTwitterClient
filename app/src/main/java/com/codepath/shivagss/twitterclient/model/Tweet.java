@@ -36,7 +36,7 @@ public class Tweet {
 
             _tweet.body = tweet.getString("text").replace("\n","<br>");
             _tweet.id = tweet.getLong("id");
-            _tweet.createdAt = Utils.getRelativeTimeAgo(tweet.getString("created_at"));
+            _tweet.createdAt = tweet.getString("created_at");
             _tweet.favorited = tweet.getBoolean("favorited");
             _tweet.retweeted = tweet.getBoolean("retweeted");
 
@@ -50,6 +50,7 @@ public class Tweet {
                 _tweet.retweetedUserName = _tweet.user.getName();
                 JSONObject retweetStatus = tweet.getJSONObject("retweeted_status");
                 _tweet.user = User.fromJson(retweetStatus.getJSONObject("user"));
+                _tweet.favoriteCount = formatter.format(retweetStatus.getLong("favorite_count"));
             }
 
         } catch (JSONException ex) {
@@ -76,7 +77,11 @@ public class Tweet {
     }
 
     public String getCreatedAt() {
-        return createdAt;
+        return Utils.getRelativeTimeAgo(createdAt);
+    }
+
+    public String getTimeStamp() {
+        return Utils.getTimeStamp(createdAt);
     }
 
     public void setCreatedAt(String createdAt) {

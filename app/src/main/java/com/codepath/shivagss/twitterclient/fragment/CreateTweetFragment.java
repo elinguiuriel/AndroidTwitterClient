@@ -2,7 +2,6 @@ package com.codepath.shivagss.twitterclient.fragment;
 
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -21,14 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.codepath.shivagss.twitterclient.R;
-import com.codepath.shivagss.twitterclient.model.Tweet;
 import com.codepath.shivagss.twitterclient.model.User;
-import com.codepath.shivagss.twitterclient.restclienttemplate.TwitterClientApp;
-import com.codepath.shivagss.twitterclient.restclienttemplate.TwitterRestClient;
+import com.codepath.shivagss.twitterclient.TwitterClientApp;
+import com.codepath.shivagss.twitterclient.restclient.TwitterRestClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -46,9 +43,12 @@ public class CreateTweetFragment extends DialogFragment {
     private EditText mEtStatus;
     private TwitterRestClient mClient;
 
+    private static String sStatus;
+
     public CreateTweetFragment(){}
 
-    public static CreateTweetFragment getInstance(){
+    public static CreateTweetFragment getInstance(String status){
+        sStatus = status;
         return new CreateTweetFragment();
     }
 
@@ -113,7 +113,7 @@ public class CreateTweetFragment extends DialogFragment {
         });
 
         mBtnSubmit.setEnabled(false);
-        mBtnSubmit.getBackground().setAlpha(100);
+        mBtnSubmit.getBackground().setAlpha(50);
         mBtnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,12 +136,12 @@ public class CreateTweetFragment extends DialogFragment {
             public void afterTextChanged(Editable s) {
                 String text = mEtStatus.getText().toString();
                 mTweetCount.setText(""+(140 - text.length()));
-                if(text.length() > 0){
+                if(text.length() > 0 && text.length() <= 140){
                     mBtnSubmit.setEnabled(true);
                     mBtnSubmit.getBackground().setAlpha(255);
                 }else{
                     mBtnSubmit.setEnabled(false);
-                    mBtnSubmit.getBackground().setAlpha(100);
+                    mBtnSubmit.getBackground().setAlpha(50);
                 }
                 if(text.length() > 140){
                     mTweetCount.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
@@ -150,6 +150,9 @@ public class CreateTweetFragment extends DialogFragment {
                 }
             }
         });
+        if(!TextUtils.isEmpty(sStatus)){
+            mEtStatus.setText(sStatus);
+        }
     }
 
     private void submitTweet() {

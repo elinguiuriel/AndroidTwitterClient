@@ -26,6 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/btnBack"
+            android:layout_centerVertical="true"
             android:paddingRight="10dp"
             android:src="@drawable/ic_login_icon"/>
 
@@ -34,6 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/ivProfilePic"
+            android:layout_alignTop="@id/ivProfilePic"
             android:text="Shiva"
             android:textSize="14sp"
             android:textStyle="bold"/>
@@ -51,8 +53,9 @@
         <Button
             android:id="@+id/btnTweet"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="32dp"
             android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:background="@drawable/rounded_tweet_button"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"

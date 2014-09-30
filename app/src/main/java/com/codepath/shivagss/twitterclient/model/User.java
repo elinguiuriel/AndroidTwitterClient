@@ -17,6 +17,16 @@ public class User {
     private String url;
     private boolean following;
 
+    public boolean isVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
+    private boolean verified;
+
     public static User fromJson(JSONObject jsonObject) {
         User user = new User();
         try {
@@ -25,7 +35,10 @@ public class User {
             user.id = jsonObject.getLong("id");
             user.screenName = "@"+jsonObject.getString("screen_name");
             user.url = jsonObject.getString("profile_image_url");
-            user.following = jsonObject.getBoolean("following");
+            if(!jsonObject.isNull("following"))
+                user.following = jsonObject.getBoolean("following");
+            if(!jsonObject.isNull("verified"))
+                user.verified = jsonObject.getBoolean("verified");
         } catch (JSONException ex) {
             Log.e(TAG, ex.toString());
             return null;

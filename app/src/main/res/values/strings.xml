@@ -14,5 +14,6 @@
     <string name="welcome">Hello. Welcome to Twitter Client.</string>
     <string name="compose">compose</string>
     <string name="tweetHint">What\'s happening?</string>
+    <string name="title_activity_tweet_detail">Tweet</string>
 
 </resources>

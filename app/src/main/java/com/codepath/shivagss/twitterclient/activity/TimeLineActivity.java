@@ -9,6 +9,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -17,9 +19,8 @@ import com.codepath.shivagss.twitterclient.R;
 import com.codepath.shivagss.twitterclient.adapter.TimeLineTweetsAdapter;
 import com.codepath.shivagss.twitterclient.fragment.CreateTweetFragment;
 import com.codepath.shivagss.twitterclient.model.Tweet;
-import com.codepath.shivagss.twitterclient.restclienttemplate.TwitterClientApp;
-import com.codepath.shivagss.twitterclient.restclienttemplate.TwitterLoginActivity;
-import com.codepath.shivagss.twitterclient.restclienttemplate.TwitterRestClient;
+import com.codepath.shivagss.twitterclient.TwitterClientApp;
+import com.codepath.shivagss.twitterclient.restclient.TwitterRestClient;
 import com.codepath.shivagss.twitterclient.utils.EndlessScrollListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -71,8 +72,21 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
                 populateTimeLine(""+maxID);
             }
         });
+        lvTweets.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                long tweetID = mTweetsAdapter.getItem(position).getId();
+                startTweetDetailsActivity(tweetID);
+            }
+        });
 
         populateTimeLine(null);
+    }
+
+    private void startTweetDetailsActivity(long tweetID) {
+        Intent intent = new Intent(this, TweetDetailActivity.class);
+        intent.putExtra("tweet_id", tweetID);
+        startActivity(intent);
     }
 
     private void populateTimeLine(final String maxID) {
@@ -117,7 +131,7 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
     }
 
     private void startCreateTweetFragment() {
-        DialogFragment fragment = CreateTweetFragment.getInstance();
+        DialogFragment fragment = CreateTweetFragment.getInstance(null);
         fragment.show(getFragmentManager(), "dialog");
     }
 
