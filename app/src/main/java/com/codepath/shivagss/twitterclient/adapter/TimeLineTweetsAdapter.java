@@ -25,7 +25,8 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
 
     private static final int VIEW_TYPE_ITEM = 0;
     private static final int VIEW_TYPE_LOADING = 1;
-    private View sProgress = new ProgressBar(getContext(), null, android.R.attr.progressBarStyleSmall);
+    private long mLoggedInUserID = 0;
+    private View sProgress = new ProgressBar(getContext(), null, android.R.attr.progressBarStyle);
 
     private class ViewHolder {
         ImageView ivRetweetIcon;
@@ -44,6 +45,14 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
     }
 
     protected ArrayList<Tweet> dataList;
+
+    public long getLoggedInUserID() {
+        return mLoggedInUserID;
+    }
+
+    public void setLoggedInUserID(long id){
+        mLoggedInUserID = id;
+    }
 
     public TimeLineTweetsAdapter(Context context, ArrayList<Tweet> objects) {
         super(context, R.layout.item_tweet, objects);
@@ -124,7 +133,7 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
             viewHolder.tvUserRetweetName.setVisibility(View.GONE);
         }
 
-        if(tweet.getUser().isFollowing()){
+        if(tweet.getUser().isFollowing() || tweet.getUser().getId() == mLoggedInUserID){
             viewHolder.btnFollowing.setVisibility(View.INVISIBLE);
         }else{
             viewHolder.btnFollowing.setVisibility(View.VISIBLE);
@@ -140,6 +149,14 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
             viewHolder.btnRetweet.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_tweet_action_inline_retweet_on), null, null, null);
         }else{
             viewHolder.btnRetweet.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_tweet_action_inline_retweet_off), null, null, null);
+
+            if(tweet.getUser().getId() == mLoggedInUserID){
+                viewHolder.btnRetweet.setAlpha(50);
+                viewHolder.btnRetweet.setEnabled(false);
+            }else{
+                viewHolder.btnRetweet.setAlpha(255);
+                viewHolder.btnRetweet.setEnabled(true);
+            }
         }
 
         viewHolder.tvUserName.setText(tweet.getUser().getName());

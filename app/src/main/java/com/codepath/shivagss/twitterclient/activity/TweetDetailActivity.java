@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -44,6 +45,7 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
     private ImageButton btnDelete;
     private User mLoggedUser;
     private ImageView ivMedia;
+    private Tweet mTweet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +90,8 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
             @Override
             public void onSuccess(JSONObject jsonObject) {
                 super.onSuccess(jsonObject);
-                populateViews(Tweet.fromJson(jsonObject));
+                mTweet = Tweet.fromJson(jsonObject);
+                populateViews(mTweet);
             }
         });
 
@@ -180,6 +183,17 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
         btnFollowing = (ImageButton) findViewById(R.id.btnFollow);
         ivMedia = (ImageView) findViewById(R.id.ivMedia);
 
+        ivMedia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mTweet != null){
+                    Intent intent = new Intent(TweetDetailActivity.this, ImageActivity.class);
+                    intent.putExtra("media_url", mTweet.getMediaURL());
+                    startActivity(intent);
+                }
+            }
+        });
+
         btnReply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -188,6 +202,17 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
                 fragment.show(getFragmentManager(), "dialog");
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

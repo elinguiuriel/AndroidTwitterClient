@@ -151,7 +151,8 @@ public class CreateTweetFragment extends DialogFragment {
             }
         });
         if(!TextUtils.isEmpty(sStatus)){
-            mEtStatus.setText(sStatus);
+            mEtStatus.setText("");
+            mEtStatus.append(sStatus + " ");
         }
     }
 

@@ -15,5 +15,8 @@
     <string name="compose">compose</string>
     <string name="tweetHint">What\'s happening?</string>
     <string name="title_activity_tweet_detail">Tweet</string>
+    <string name="title_activity_image">Tweet</string>
+    <string name="no_internet">No Internet connection. Please try again later.</string>
+    <string name="action_share">share</string>
 
 </resources>

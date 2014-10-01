@@ -12,5 +12,16 @@
         <item name="android:background">@color/primary_color</item>
     </style>
 
+    <style name="CustomImageActivityActionBarTheme"
+           parent="@android:style/Theme.Holo.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/MyImageActivityActionBar</item>
+    </style>
+
+
+    <!-- ActionBar styles -->
+    <style name="MyImageActivityActionBar"
+           parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@android:color/background_dark</item>
+    </style>
 
 </resources>

@@ -20,6 +20,7 @@ import com.codepath.shivagss.twitterclient.adapter.TimeLineTweetsAdapter;
 import com.codepath.shivagss.twitterclient.fragment.CreateTweetFragment;
 import com.codepath.shivagss.twitterclient.model.Tweet;
 import com.codepath.shivagss.twitterclient.TwitterClientApp;
+import com.codepath.shivagss.twitterclient.model.User;
 import com.codepath.shivagss.twitterclient.restclient.TwitterRestClient;
 import com.codepath.shivagss.twitterclient.utils.EndlessScrollListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -34,9 +35,10 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
     private static final String TAG = TimeLineActivity.class.getName().toString();
     private TwitterRestClient mClient;
     ArrayList<Tweet> mTweetsList;
-    ArrayAdapter<Tweet> mTweetsAdapter;
+    TimeLineTweetsAdapter mTweetsAdapter;
     ListView lvTweets;
     private SwipeRefreshLayout swipeContainer;
+    private User mLoggedUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,20 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
         setContentView(R.layout.activity_time_line);
 
         mClient = TwitterClientApp.getRestClient();
+        TwitterClientApp.getRestClient()
+                .getUserCredentials(new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(JSONObject jsonObject) {
+                        mLoggedUser = User.fromJson(jsonObject);
+                        mTweetsAdapter.setLoggedInUserID(mLoggedUser.getId());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable, JSONObject jsonObject) {
+                        Log.e(TAG, throwable.toString());
+                    }
+                });
+
 
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         // Setup refresh listener which triggers new data loading
@@ -70,7 +86,7 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
             public void onLoadMore(int page, int totalItemsCount) {
                 if(mTweetsList.size() > 0) {
                     long maxID = mTweetsList.get(mTweetsList.size() - 1).getId();
-                    populateTimeLine("" + maxID);
+                    populateTimeLine("" + (maxID - 1));
                 }
             }
         });
@@ -110,6 +126,11 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
                 Log.e(TAG, throwable.toString());
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        //hijack the event
     }
 
     @Override

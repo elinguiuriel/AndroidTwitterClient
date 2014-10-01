@@ -75,10 +75,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_alignBottom="@id/tvUserNameHandle"
             android:layout_below="@id/tvUserRetweetName"
             android:text="3h"
             android:textColor="@color/secondary_text_color"
-            android:textSize="14sp"/>
+            android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/tvBodyText"
@@ -92,9 +93,10 @@
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="150dp"
             android:id="@+id/ivMedia"
-            android:layout_marginTop="5dp"
+            android:scaleType="centerCrop"
+            android:layout_margin="5dp"
             android:layout_below="@id/tvBodyText"
             android:src="@drawable/ic_launcher"/>
 
@@ -131,6 +133,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginLeft="20dp"
                 android:background="@android:color/transparent"
                 android:drawableLeft="@drawable/ic_tweet_action_inline_favorite_off"
                 android:drawablePadding="2dp"

@@ -43,6 +43,7 @@ public class TwitterRestClient extends OAuthBaseClient {
         RequestParams params = new RequestParams();
         if(!TextUtils.isEmpty(maxID)){
             params.put("max_id", ""+maxID);
+            params.put("count", "200");
         }
         params.put("since_id", "1");
 
