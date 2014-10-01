@@ -3,7 +3,7 @@ AndroidTwitterClient
 
 A simple Twitter client that supports viewing a Twitter timeline and composing a new tweet.
 
-####Total time spent: 10 Hours
+####Total time spent: 16 Hours
 
 ####User Stories:
 
@@ -20,8 +20,12 @@ A simple Twitter client that supports viewing a Twitter timeline and composing a
    * [x] User can refresh tweets timeline by pulling down to refresh
    * [x] Improve the user interface and theme the app to feel "twitter branded"
    * [x] Compose activity is replaced with a modal overlay
+   * [x] User can tap a tweet to display a "detailed" view of that tweet
+   * [x] User can select "reply" from detail view to respond to a tweet
+   * [x] User can see embedded image media within the tweet detail view
+   * [x] Display media image with TouchImageView and action bar overlay
   
-Libraries used: android-async-http-1.4.3, ActiveAndroid-3.1, codepath-oauth-0.3.0.jar, codepath-utils.jar, scribe-codepath.jar, universal-image-loader-1.8.4.jar and android-support-v4.
+Libraries used: android-async-http-1.4.3, ActiveAndroid-3.1, codepath-oauth-0.3.0.jar, codepath-utils.jar, scribe-codepath.jar, universal-image-loader-1.8.4.jar, picasso-2.3.4.jar and android-support-v4.
 
 ####Demo:
 ![Video Walkthrough](demo.gif)
