@@ -3,6 +3,7 @@ package com.codepath.shivagss.twitterclient.activity;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
@@ -11,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -26,19 +26,23 @@ import com.codepath.shivagss.twitterclient.utils.EndlessScrollListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class TimeLineActivity extends Activity implements CreateTweetFragment.onTweetListener {
 
     private static final String TAG = TimeLineActivity.class.getName().toString();
-    private TwitterRestClient mClient;
+    private final CountDownLatch mNetworkRequestDoneSignal = new CountDownLatch(1);
     ArrayList<Tweet> mTweetsList;
     TimeLineTweetsAdapter mTweetsAdapter;
     ListView lvTweets;
+    private TwitterRestClient mClient;
     private SwipeRefreshLayout swipeContainer;
-    private User mLoggedUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +54,13 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
                 .getUserCredentials(new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(JSONObject jsonObject) {
-                        mLoggedUser = User.fromJson(jsonObject);
-                        mTweetsAdapter.setLoggedInUserID(mLoggedUser.getId());
+                        try {
+                            jsonObject.put("current_user", true);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        User.fromJson(jsonObject);
+                        mTweetsAdapter.setmLoggedInUserID(User.getCurrentUser().getUserId());
                     }
 
                     @Override
@@ -66,7 +75,7 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                populateTimeLine(null);
+                populateTimeLine(null , true);
                 swipeContainer.setRefreshing(false);
             }
         });
@@ -84,9 +93,9 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
         lvTweets.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
-                if(mTweetsList.size() > 0) {
-                    long maxID = mTweetsList.get(mTweetsList.size() - 1).getId();
-                    populateTimeLine("" + (maxID - 1));
+                if (mTweetsList.size() > 0) {
+                    String maxID = mTweetsList.get(mTweetsList.size() - 1).getTweetId();
+                    populateTimeLine("" + (maxID) , false);
                 }
             }
         });
@@ -94,38 +103,68 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Tweet tweet = mTweetsAdapter.getItem(position);
-                if(tweet != null) {
-                    long tweetID = tweet.getId();
+                if (tweet != null) {
+                    String tweetID = tweet.getTweetId();
                     startTweetDetailsActivity(tweetID);
                 }
             }
         });
 
-        populateTimeLine(null);
+        loadTweetsFromNetwork(null);
     }
 
-    private void startTweetDetailsActivity(long tweetID) {
+    private void startTweetDetailsActivity(String tweetID) {
         Intent intent = new Intent(this, TweetDetailActivity.class);
         intent.putExtra("tweet_id", tweetID);
         startActivity(intent);
     }
 
-    private void populateTimeLine(final String maxID) {
+    private void populateTimeLine(final String maxID, boolean loadFromNetwork) {
+        long maxIDl = -1;
+        if (TextUtils.isEmpty(maxID)) {
+            mTweetsAdapter.clear();
+        } else {
+            maxIDl = Long.parseLong(maxID);
+        }
+        List<Tweet> list = Tweet.getTweetsList(maxIDl);
+
+        if (list.isEmpty() || loadFromNetwork) {
+            loadTweetsFromNetwork(maxID, true);
+        } else {
+            mTweetsAdapter.addAll(list);
+        }
+    }
+
+    private void loadTweetsFromNetwork(String maxID) {
+        loadTweetsFromNetwork(maxID, false);
+    }
+
+    private void loadTweetsFromNetwork(final String maxID, final boolean await) {
+
         mClient.getHomeTimeLine(maxID, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(JSONArray jsonArray) {
-                if (TextUtils.isEmpty(maxID)) {
-                    mTweetsAdapter.clear();
-                }
-                mTweetsAdapter.addAll(Tweet.fromJson(jsonArray));
+                Tweet.fromJson(jsonArray);
+                mNetworkRequestDoneSignal.countDown();
+                populateTimeLine(maxID, false);
             }
 
             @Override
             public void onFailure(Throwable throwable, JSONObject jsonObject) {
-                Toast.makeText(TimeLineActivity.this, "Failed to populate your timeline", Toast.LENGTH_LONG).show();
+                Toast.makeText(TimeLineActivity.this, "Failed to load new tweets from network", Toast.LENGTH_LONG).show();
                 Log.e(TAG, throwable.toString());
+                    mNetworkRequestDoneSignal.countDown();
+                populateTimeLine(maxID, false);
             }
         });
+
+        try {
+            if (await) {
+                mNetworkRequestDoneSignal.await();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -150,7 +189,7 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
             onTwitterSignout();
             return true;
         }
-        if(id == R.id.compose){
+        if (id == R.id.compose) {
             startCreateTweetFragment();
         }
         return super.onOptionsItemSelected(item);
@@ -162,6 +201,8 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
     }
 
     private void onTwitterSignout() {
+        User.getCurrentUser().setCurrentUser(false);
+        User.getCurrentUser().save();
         mClient.clearAccessToken();
         startActivity(new Intent(this, TwitterLoginActivity.class).
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).
@@ -170,6 +211,6 @@ public class TimeLineActivity extends Activity implements CreateTweetFragment.on
 
     @Override
     public void onTweetSubmit() {
-        populateTimeLine(null);
+        populateTimeLine(null, true);
     }
 }

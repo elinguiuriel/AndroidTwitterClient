@@ -43,7 +43,7 @@ public class TwitterRestClient extends OAuthBaseClient {
         RequestParams params = new RequestParams();
         if(!TextUtils.isEmpty(maxID)){
             params.put("max_id", ""+maxID);
-            params.put("count", "200");
+            params.put("count", "80");
         }
         params.put("since_id", "1");
 
@@ -62,9 +62,9 @@ public class TwitterRestClient extends OAuthBaseClient {
         client.post(apiUrl, null, handler);
     }
 
-    public void getTweetDetails(long tweetID, AsyncHttpResponseHandler handler) {
+    public void getTweetDetails(String tweetID, AsyncHttpResponseHandler handler) {
         List<BasicNameValuePair> params = new LinkedList<BasicNameValuePair>();
-        params.add(new BasicNameValuePair("id", Long.toString(tweetID)));
+        params.add(new BasicNameValuePair("id", (tweetID)));
         String apiUrl = getApiUrl("/statuses/show.json?" + URLEncodedUtils.format(params, "utf-8"));
         client.get(apiUrl, null, handler);
     }

@@ -121,6 +121,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tvBodyText"
                 android:layout_marginTop="5dp"
+                android:adjustViewBounds="true"
                 android:scaleType="fitXY"/>
 
             <TextView

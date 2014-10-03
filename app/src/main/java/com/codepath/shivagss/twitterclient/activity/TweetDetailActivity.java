@@ -55,29 +55,10 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
         setupViews();
 
         Intent intent = getIntent();
-        long tweetID = intent.getLongExtra("tweet_id",0);
-        if(tweetID == 0){
+        String tweetID = intent.getStringExtra("tweet_id");
+        if(tweetID == null || tweetID.isEmpty()){
             Toast.makeText(this,"Error downloading tweet details. Please try again later.", Toast.LENGTH_LONG).show();
             finish();
-        }
-
-        TwitterClientApp.getRestClient()
-                .getUserCredentials(new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(JSONObject jsonObject) {
-                        mLoggedUser = User.fromJson(jsonObject);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable throwable, JSONObject jsonObject) {
-                        Log.e(TAG, throwable.toString());
-                    }
-                });
-
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
 
         TwitterClientApp.getRestClient().getTweetDetails(tweetID, new JsonHttpResponseHandler(){
@@ -91,6 +72,7 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
             public void onSuccess(JSONObject jsonObject) {
                 super.onSuccess(jsonObject);
                 mTweet = Tweet.fromJson(jsonObject);
+                mLoggedUser = User.getCurrentUser();
                 populateViews(mTweet);
             }
         });
@@ -147,7 +129,7 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
             ivVerified.setVisibility(View.GONE);
         }
 
-        if(mLoggedUser != null && mLoggedUser.getId() == tweet.getUser().getId()){
+        if(mLoggedUser != null && mLoggedUser.getUserId() == tweet.getUser().getUserId()){
             btnDelete.setVisibility(View.VISIBLE);
             btnFollowing.setVisibility(View.GONE);
         }else{

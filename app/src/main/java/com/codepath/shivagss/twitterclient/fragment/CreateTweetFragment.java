@@ -75,25 +75,19 @@ public class CreateTweetFragment extends DialogFragment {
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
 
-        mClient = TwitterClientApp.getRestClient();
-        mClient.getUserCredentials(new JsonHttpResponseHandler(){
-            @Override
-            public void onSuccess(JSONObject jsonObject) {
-                User user = User.fromJson(jsonObject);
-                mProfileHandle.setText(user.getScreenName());
-                ImageLoader imageLoader = ImageLoader.getInstance();
-                mProfilePic.setImageResource(0);
-                imageLoader.displayImage(user.getUrl(), mProfilePic);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable, JSONObject jsonObject) {
-                Toast.makeText(getDialog().getContext(), "Failed to receive username", Toast.LENGTH_LONG).show();
-                Log.e(TAG, throwable.toString());
-            }
-        });
-
         setupViews(view);
+
+                User user = User.getCurrentUser();
+                if(user == null) {
+                    Toast.makeText(getDialog().getContext(), "Failed to get user details", Toast.LENGTH_LONG).show();
+                    getDialog().dismiss();
+                    return view;
+                }else {
+                    mProfileHandle.setText(user.getScreenName());
+                    ImageLoader imageLoader = ImageLoader.getInstance();
+                    mProfilePic.setImageResource(0);
+                    imageLoader.displayImage(user.getUrl(), mProfilePic);
+                }
         return view;
     }
 

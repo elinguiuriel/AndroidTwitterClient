@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.codepath.shivagss.twitterclient.R;
 import com.codepath.shivagss.twitterclient.model.Tweet;
+import com.codepath.shivagss.twitterclient.model.User;
+import com.codepath.shivagss.twitterclient.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
@@ -25,7 +27,8 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
 
     private static final int VIEW_TYPE_ITEM = 0;
     private static final int VIEW_TYPE_LOADING = 1;
-    private long mLoggedInUserID = 0;
+
+    private String mLoggedInUserID = "0";
     private View sProgress = new ProgressBar(getContext(), null, android.R.attr.progressBarStyle);
 
     private class ViewHolder {
@@ -45,14 +48,6 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
     }
 
     protected ArrayList<Tweet> dataList;
-
-    public long getLoggedInUserID() {
-        return mLoggedInUserID;
-    }
-
-    public void setLoggedInUserID(long id){
-        mLoggedInUserID = id;
-    }
 
     public TimeLineTweetsAdapter(Context context, ArrayList<Tweet> objects) {
         super(context, R.layout.item_tweet, objects);
@@ -133,7 +128,7 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
             viewHolder.tvUserRetweetName.setVisibility(View.GONE);
         }
 
-        if(tweet.getUser().isFollowing() || tweet.getUser().getId() == mLoggedInUserID){
+        if(tweet.getUser().isFollowing() || tweet.getUser().getUserId().equals(mLoggedInUserID)){
             viewHolder.btnFollowing.setVisibility(View.INVISIBLE);
         }else{
             viewHolder.btnFollowing.setVisibility(View.VISIBLE);
@@ -150,7 +145,7 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
         }else{
             viewHolder.btnRetweet.setCompoundDrawablesWithIntrinsicBounds(getContext().getResources().getDrawable(R.drawable.ic_tweet_action_inline_retweet_off), null, null, null);
 
-            if(tweet.getUser().getId() == mLoggedInUserID){
+            if(tweet.getUser().getUserId() == mLoggedInUserID){
                 viewHolder.btnRetweet.setAlpha(50);
                 viewHolder.btnRetweet.setEnabled(false);
             }else{
@@ -171,9 +166,10 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.displayImage(tweet.getUser().getUrl(), viewHolder.ivProfilePic);
 
-        if(TextUtils.isEmpty(tweet.getMediaURL())){
+        if(TextUtils.isEmpty(tweet.getMediaURL()) || !Utils.isNetworkAvailable(getContext())){
             viewHolder.ivMedia.setVisibility(View.GONE);
         }else{
+            viewHolder.ivMedia.setImageResource(R.drawable.ic_launcher);
             viewHolder.ivMedia.setVisibility(View.VISIBLE);
             imageLoader.displayImage(tweet.getMediaURL(), viewHolder.ivMedia);
         }
@@ -183,5 +179,13 @@ public class TimeLineTweetsAdapter extends ArrayAdapter<Tweet> {
 
     private View getFooterView() {
         return sProgress;
+    }
+
+    public String getmLoggedInUserID() {
+        return mLoggedInUserID;
+    }
+
+    public void setmLoggedInUserID(String mLoggedInUserID) {
+        this.mLoggedInUserID = mLoggedInUserID;
     }
 }

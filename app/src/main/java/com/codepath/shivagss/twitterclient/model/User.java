@@ -2,20 +2,34 @@ package com.codepath.shivagss.twitterclient.model;
 
 import android.util.Log;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Select;
+import com.activeandroid.query.Update;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * Created by Sandeep on 9/27/2014.
  */
-public class User {
+@Table(name = "Users")
+public class User extends Model {
 
     private static final String TAG = User.class.getName().toString();
-    private String name;
-    private long id;
-    private String screenName;
-    private String url;
-    private boolean following;
+    @Column(name = "user_name")
+    public String name;
+    @Column(name = "user_id", unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+    public String userID;
+    @Column(name = "screen_name")
+    public String screenName;
+    @Column(name = "url")
+    public String url;
+    @Column(name = "following")
+    public boolean following;
+    @Column(name = "current_user")
+    public boolean currentUser;
 
     public boolean isVerified() {
         return verified;
@@ -32,17 +46,31 @@ public class User {
         try {
 
             user.name = jsonObject.getString("name");
-            user.id = jsonObject.getLong("id");
+            user.userID = jsonObject.getString("id_str");
             user.screenName = "@"+jsonObject.getString("screen_name");
             user.url = jsonObject.getString("profile_image_url");
             if(!jsonObject.isNull("following"))
                 user.following = jsonObject.getBoolean("following");
             if(!jsonObject.isNull("verified"))
                 user.verified = jsonObject.getBoolean("verified");
+            if(!jsonObject.isNull("current_user")){
+                user.currentUser = true;
+            }else{
+                user.currentUser = false;
+            }
         } catch (JSONException ex) {
             Log.e(TAG, ex.toString());
             return null;
         }
+
+        User dbUser = User.getUser(user.getUserId());
+        if(dbUser != null){
+            return dbUser;
+//            new Update(User.class)
+//                    .set("user_name = '"+user.name+"'")
+//                    .where("user_id = '"+user.userID+"'");
+        }
+        user.save();
         return user;
     }
 
@@ -54,12 +82,12 @@ public class User {
         this.name = name;
     }
 
-    public long getId() {
-        return id;
+    public String getUserId() {
+        return userID;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setUserId(String id) {
+        this.userID = id;
     }
 
     public String getScreenName() {
@@ -84,5 +112,28 @@ public class User {
 
     public void setFollowing(boolean following) {
         this.following = following;
+    }
+
+
+    public boolean isCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(boolean currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public static User getUser(String userID){
+        return new Select()
+                .from(User.class)
+                .where("user_id = ?", userID)
+                .executeSingle();
+    }
+
+    public static User getCurrentUser(){
+        return new Select()
+                .from(User.class)
+                .where("current_user = 1")
+                .executeSingle();
     }
 }

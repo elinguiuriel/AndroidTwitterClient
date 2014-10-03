@@ -3,6 +3,12 @@ package com.codepath.shivagss.twitterclient.model;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.activeandroid.query.From;
+import com.activeandroid.query.Select;
 import com.codepath.shivagss.twitterclient.utils.Utils;
 
 import org.json.JSONArray;
@@ -11,23 +17,37 @@ import org.json.JSONObject;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Formatter;
+import java.util.List;
 import java.util.Locale;
 
 /**
  * Created by Sandeep on 9/27/2014.
  */
-public class Tweet {
+@Table(name = "Tweets")
+public class Tweet extends Model {
 
     private static final String TAG = Tweet.class.getName().toString();
-    private long id;
-    private User user;
-    private String createdAt;
-    private String body;
-    private String retweetedUserName;
-    private String retweetCount;
-    private String favoriteCount;
-    private boolean favorited;
-    private boolean retweeted;
+    @Column(name = "tweet_id", unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
+    public String tweetID;
+    @Column(name = "user", onUpdate = Column.ForeignKeyAction.CASCADE, onDelete = Column.ForeignKeyAction.CASCADE)
+    public User user;
+    @Column(name = "created_at")
+    public String createdAt;
+    @Column(name = "body")
+    public String body;
+    @Column(name = "retweeted_username")
+    public String retweetedUserName;
+    @Column(name = "retweet_count")
+    public String retweetCount;
+    @Column(name = "favorite_count")
+    public String favoriteCount;
+    @Column(name = "favorited")
+    public boolean favorited;
+    @Column(name = "retweeted")
+    public boolean retweeted;
+    @Column(name = "media_url")
+    public String mediaURL;
 
     public String getMediaURL() {
         return mediaURL;
@@ -37,15 +57,14 @@ public class Tweet {
         this.mediaURL = mediaURL;
     }
 
-    private String mediaURL;
-
     public static Tweet fromJson(JSONObject tweet) {
 
         Tweet _tweet = new Tweet();
         try {
 
             _tweet.body = tweet.getString("text").replace("\n","<br>");
-            _tweet.id = tweet.getLong("id");
+            _tweet.tweetID = tweet.getString("id_str");
+            Log.d("TEST", "Adding = " +_tweet.tweetID);
             _tweet.createdAt = tweet.getString("created_at");
             _tweet.favorited = tweet.getBoolean("favorited");
             _tweet.retweeted = tweet.getBoolean("retweeted");
@@ -72,6 +91,7 @@ public class Tweet {
             Log.e("ERR", ex.toString());
             return null;
         }
+        _tweet.save();
         return _tweet;
     }
 
@@ -83,12 +103,12 @@ public class Tweet {
         this.body = body;
     }
 
-    public long getId() {
-        return id;
+    public String getTweetId() {
+        return tweetID;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setTweetId(String id) {
+        this.tweetID = id;
     }
 
     public String getCreatedAt() {
@@ -156,17 +176,67 @@ public class Tweet {
 
     }
 
+    public static Tweet getTweet(long tweetID){
+        return new Select()
+                .from(Tweet.class)
+                .where("tweet_id = ?", tweetID)
+                .orderBy("tweet_id DESC")
+                .executeSingle();
+    }
+
+
+    public static List<Tweet> getTweetsList(int count, long maxID){
+        return getTweetsList(count, 1, maxID);
+    }
+
+    public static List<Tweet> getTweetsList(long maxID){
+        return getTweetsList(20, 1, maxID);
+    }
+
+    public static List<Tweet> getTweetsList(int count){
+        return getTweetsList(count, 1, -1);
+    }
+
+    public static List<Tweet> getTweetsList(int count, long sinceID, long maxID){
+
+        if(count <= 0) return new ArrayList<Tweet>();
+
+        String whereClause = String.format("tweet_id >= " + sinceID);
+        if(maxID > 0){
+            whereClause += String.format(" AND tweet_id < "+ maxID);
+        }
+        From sql = new Select()
+                .from(Tweet.class)
+                .where(whereClause)
+                .orderBy("tweet_id DESC")
+                .limit(count);
+        Log.d("Tweet", sql.toSql());
+        return sql.execute();
+    }
+
     public static ArrayList<Tweet> fromJson(JSONArray jsonArray) {
         ArrayList<Tweet> _list = new ArrayList<Tweet>();
-        for (int i = 0; i < jsonArray.length(); i++) {
-            try {
-                JSONObject tweet = jsonArray.getJSONObject(i);
-                _list.add(fromJson(tweet));
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e(TAG, e.toString());
+        ActiveAndroid.beginTransaction();
+        try {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                try {
+                    JSONObject tweet = jsonArray.getJSONObject(i);
+                    _list.add(fromJson(tweet));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, e.toString());
+                }
             }
+            ActiveAndroid.setTransactionSuccessful();
+        }finally {
+            ActiveAndroid.endTransaction();
         }
+
         return _list;
+    }
+
+    @Override
+    public String toString() {
+             return "tweetID=" + super.getId();
     }
 }
