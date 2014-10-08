@@ -1,7 +1,7 @@
 AndroidTwitterClient
 ====================
 
-An Androdi Twitter client that supports viewing a Twitter timeline, compose tweets, and many more.
+An Android Twitter client that supports viewing a Twitter timeline, compose tweets, and many more.
 
 ####Total time spent(week 2): 20 Hours
 
