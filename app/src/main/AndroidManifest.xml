@@ -3,7 +3,7 @@
     package="com.codepath.shivagss.twitterclient" >
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -52,27 +52,38 @@
         </activity>
         <activity
             android:name=".activity.TimeLineActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_time_line" >
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activity.SearchActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".activity.TweetDetailActivity"
             android:label="@string/title_activity_tweet_detail"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".activity.TimeLineActivity" >
+            android:parentActivityName=".activity.TimeLineActivity"
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codepath.shivagss.twitterclient.activity.TimeLineActivity" />
         </activity>
         <activity
             android:name=".activity.ImageActivity"
-            android:label="@string/title_activity_image"
             android:icon="@drawable/ic_widget_larry"
+            android:label="@string/title_activity_image"
             android:parentActivityName=".activity.TweetDetailActivity"
-            android:theme="@style/CustomImageActivityActionBarTheme">
+            android:theme="@style/CustomImageActivityActionBarTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.codepath.shivagss.twitterclient.activity.TweetDetailActivity" />
+        </activity>
+        <activity
+            android:name=".activity.ProfileActivity"
+            android:label="@string/title_activity_profile" >
+        </activity>
+        <activity
+            android:name=".activity.DisplayTweetsListActivity"
+            android:label="@string/title_activity_fragment_place_holder" >
         </activity>
     </application>
 

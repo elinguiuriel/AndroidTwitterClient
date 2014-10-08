@@ -2,13 +2,33 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.codepath.shivagss.twitterclient.activity.TimeLineActivity">
     <item
+        android:id="@+id/profile"
+        android:showAsAction="never"
+        android:title="@string/my_profile"/>
+    <item
         android:id="@+id/signout"
         android:orderInCategory="100"
-        android:showAsAction="always"
+        android:showAsAction="never"
         android:title="@string/signout"/>
     <item
+        android:id="@+id/notifications"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_title_notifications_default"
+        android:title="@string/notifications"/>
+    <item
+        android:id="@+id/messages"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_title_messages_default"
+        android:title="@string/messages"/>
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/ic_title_search_default"
+        android:showAsAction="collapseActionView|always"
+        android:actionViewClass="android.widget.SearchView"
+        android:title="@string/action_search"/>
+    <item
         android:id="@+id/compose"
-        android:showAsAction="always"
-        android:icon="@drawable/ic_float_compose_default"
+        android:showAsAction="collapseActionView|always"
+        android:icon="@drawable/ic_toolbar_compose_default"
         android:title="@string/compose"/>
 </menu>

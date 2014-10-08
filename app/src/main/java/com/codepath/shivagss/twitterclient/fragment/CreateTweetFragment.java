@@ -76,6 +76,7 @@ public class CreateTweetFragment extends DialogFragment {
 
 
         setupViews(view);
+        mClient = TwitterClientApp.getRestClient();
 
                 User user = User.getCurrentUser();
                 if(user == null) {

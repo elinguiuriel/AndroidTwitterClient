@@ -18,5 +18,12 @@
     <string name="title_activity_image">Tweet</string>
     <string name="no_internet">No Internet connection. Please try again later.</string>
     <string name="action_share">share</string>
+    <string name="title_activity_profile">Profile</string>
+    <string name="action_search">Search</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="notifications">Notifications</string>
+    <string name="messages">Messages</string>
+    <string name="title_activity_fragment_place_holder">Tweets</string>
+    <string name="my_profile">My Profile</string>
 
 </resources>

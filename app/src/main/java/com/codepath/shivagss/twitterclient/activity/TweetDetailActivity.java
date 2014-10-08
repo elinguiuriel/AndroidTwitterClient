@@ -1,8 +1,11 @@
 package com.codepath.shivagss.twitterclient.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
@@ -19,9 +22,12 @@ import com.codepath.shivagss.twitterclient.TwitterClientApp;
 import com.codepath.shivagss.twitterclient.fragment.CreateTweetFragment;
 import com.codepath.shivagss.twitterclient.model.Tweet;
 import com.codepath.shivagss.twitterclient.model.User;
+import com.codepath.shivagss.twitterclient.restclient.TwitterRestClient;
+import com.codepath.shivagss.twitterclient.utils.Utils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class TweetDetailActivity extends Activity implements CreateTweetFragment.onTweetListener {
@@ -46,6 +52,7 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
     private User mLoggedUser;
     private ImageView ivMedia;
     private Tweet mTweet;
+    private TwitterRestClient mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,28 +61,56 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
 
         setupViews();
 
+        mClient = TwitterClientApp.getRestClient();
+
         Intent intent = getIntent();
         String tweetID = intent.getStringExtra("tweet_id");
-        if(tweetID == null || tweetID.isEmpty()){
-            Toast.makeText(this,"Error downloading tweet details. Please try again later.", Toast.LENGTH_LONG).show();
+        if (tweetID == null || tweetID.isEmpty()) {
+            Toast.makeText(this, "Error downloading tweet details. Please try again later.", Toast.LENGTH_LONG).show();
             finish();
         }
 
-        TwitterClientApp.getRestClient().getTweetDetails(tweetID, new JsonHttpResponseHandler(){
+        mLoggedUser = User.getCurrentUser();
+
+        if (!Utils.isNetworkAvailable(this)) {
+            mTweet = Tweet.getTweet(tweetID);
+            populateViews(mTweet);
+        } else {
+            mClient.getTweetDetails(tweetID, mTweetJSONReponseHandler);
+        }
+
+        ivProfilePic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startProfileActivity(mTweet.getUser().getUserId());
+            }
+        });
+    }
+
+    public JsonHttpResponseHandler mTweetJSONReponseHandler = new JsonHttpResponseHandler() {
             @Override
             public void onFailure(Throwable throwable, JSONObject jsonObject) {
                 super.onFailure(throwable, jsonObject);
+                try {
+                    new AlertDialog.Builder(TweetDetailActivity.this).setTitle("Error").setMessage(jsonObject.getString("errors")).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 Log.e(TAG, "Error loading tweet details." + throwable.getMessage());
             }
 
             @Override
             public void onSuccess(JSONObject jsonObject) {
                 super.onSuccess(jsonObject);
-                mTweet = Tweet.fromJson(jsonObject);
-                mLoggedUser = User.getCurrentUser();
+                mTweet = Tweet.fromJson(jsonObject, -1);
                 populateViews(mTweet);
             }
-        });
+        };
+
+    private void startProfileActivity(String userID) {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra("user_id", userID);
+        startActivity(intent);
 
     }
 
@@ -90,21 +125,21 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
             tvUserRetweetName.setVisibility(View.GONE);
         }
 
-        if(tweet.getUser().isFollowing()){
+        if (tweet.getUser().isFollowing()) {
             btnFollowing.setVisibility(View.INVISIBLE);
-        }else{
+        } else {
             btnFollowing.setVisibility(View.VISIBLE);
         }
 
-        if(tweet.isFavorited()){
+        if (tweet.isFavorited()) {
             btnFavorite.setImageResource(R.drawable.ic_action_fave_on_default);
-        }else{
+        } else {
             btnFavorite.setImageResource(R.drawable.ic_action_fave_off_pressed);
         }
 
-        if(tweet.isRetweeted()){
+        if (tweet.isRetweeted()) {
             btnRetweet.setImageResource(R.drawable.ic_action_rt_on_default);
-        }else{
+        } else {
             btnRetweet.setImageResource(R.drawable.ic_action_rt_off_pressed);
         }
 
@@ -113,32 +148,31 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
         tvCreatedAtTime.setText(tweet.getTimeStamp());
         tvBodyText.setText(Html.fromHtml(tweet.getBody()));
 
-
         String rtCount = tweet.getRetweetCount();
-        tvRetweets.setText(Html.fromHtml(rtCount.equals("1")? "<b>"+rtCount+"</b> RETWEET":"<b>"+rtCount+"</b> RETWEETS"));
+        tvRetweets.setText(Html.fromHtml(rtCount.equals("1") ? "<b>" + rtCount + "</b> RETWEET" : "<b>" + rtCount + "</b> RETWEETS"));
         String rtFav = tweet.getFavoriteCount();
-        tvFavorites.setText(Html.fromHtml(rtFav.equals("1")? "<b>"+rtFav+"</b> FAVORITE":"<b>"+rtFav+"</b> FAVORITES"));
+        tvFavorites.setText(Html.fromHtml(rtFav.equals("1") ? "<b>" + rtFav + "</b> FAVORITE" : "<b>" + rtFav + "</b> FAVORITES"));
 
         ivProfilePic.setImageResource(0);
         ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.displayImage(tweet.getUser().getUrl(), ivProfilePic);
 
-        if(tweet.getUser().isVerified()){
+        if (tweet.getUser().isVerified()) {
             ivVerified.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             ivVerified.setVisibility(View.GONE);
         }
 
-        if(mLoggedUser != null && mLoggedUser.getUserId() == tweet.getUser().getUserId()){
+        if (mLoggedUser != null && mLoggedUser.getUserId() == tweet.getUser().getUserId()) {
             btnDelete.setVisibility(View.VISIBLE);
             btnFollowing.setVisibility(View.GONE);
-        }else{
+        } else {
             btnDelete.setVisibility(View.GONE);
         }
 
-        if(TextUtils.isEmpty(tweet.getMediaURL())){
+        if (TextUtils.isEmpty(tweet.getMediaURL())) {
             ivMedia.setVisibility(View.GONE);
-        }else{
+        } else {
             ivMedia.setVisibility(View.VISIBLE);
             imageLoader.displayImage(tweet.getMediaURL(), ivMedia);
         }
@@ -156,9 +190,78 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
         tvCreatedAtTime = (TextView) findViewById(R.id.tvTimeStamp);
         btnReply = (ImageButton) findViewById(R.id.btnReply);
         btnRetweet = (ImageButton) findViewById(R.id.btnRetweet);
+        btnRetweet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(TweetDetailActivity.this);
+                dialog.setTitle("Retweet").setMessage("Retweet this to you followers?")
+                        .setPositiveButton("Retweet", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mClient.postReTweet(mTweet.getTweetId(), mTweetJSONReponseHandler);
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .setNeutralButton("Quote", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String status = "\""+tvUserNameHandle.getText().toString()+": "+tvBodyText.getText().toString()+"\"";
+                                DialogFragment fragment = CreateTweetFragment.getInstance(status);
+                                fragment.show(getFragmentManager(), "dialog");
+                            }
+                        }).show();
+            }
+        });
         btnFavorite = (ImageButton) findViewById(R.id.btnFavorite);
+        btnFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mTweet!=null){
+                    if(mTweet.isFavorited()){
+                        mClient.postUnFavoriteTweetUpdate(mTweet.getTweetId(), mTweetJSONReponseHandler);
+                    }else{
+                        mClient.postFavoriteTweetUpdate(mTweet.getTweetId(), mTweetJSONReponseHandler);
+                    }
+                }
+            }
+        });
         btnShare = (ImageButton) findViewById(R.id.btnShare);
+        btnShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onShareItem(mTweet);
+            }
+        });
         btnDelete = (ImageButton) findViewById(R.id.btnDelete);
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mTweet!=null){
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(TweetDetailActivity.this);
+                    dialog.setTitle("Delete").setMessage("Are you sure you want to delete?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mClient.deleteTweet(mTweet.getTweetId(), new JsonHttpResponseHandler(){
+                                        @Override
+                                        public void onSuccess(JSONObject jsonObject) {
+                                            Tweet.delete(Tweet.class,mTweet.getId());
+                                            onBackPressed();
+                                        }
+
+                                        @Override
+                                        public void onFailure(Throwable throwable, JSONObject jsonObject) {
+                                            super.onFailure(throwable, jsonObject);
+                                            Toast.makeText(TweetDetailActivity.this, "Failed to delete tweet. Please try again later", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton("No", null).show();
+
+                }
+            }
+        });
         tvRetweets = (TextView) findViewById(R.id.tvRetweets);
         tvFavorites = (TextView) findViewById(R.id.tvFavorites);
         ivVerified = (ImageView) findViewById(R.id.ivVerified);
@@ -168,7 +271,7 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
         ivMedia.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mTweet != null){
+                if (mTweet != null) {
                     Intent intent = new Intent(TweetDetailActivity.this, ImageActivity.class);
                     intent.putExtra("media_url", mTweet.getMediaURL());
                     startActivity(intent);
@@ -200,5 +303,18 @@ public class TweetDetailActivity extends Activity implements CreateTweetFragment
     @Override
     public void onTweetSubmit() {
         //DO NOTHING
+    }
+
+    // Can be triggered by a view event such as a button press
+    public void onShareItem(Tweet tweet) {
+        if(tweet!=null) {
+            String text = "Check out "+tweet.getUser().getScreenName()+"'s Tweet: https://twitter.com/"+tweet.getUser().getScreenName().substring(1)+"/status/"+tweet.getTweetId();
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+            sendIntent.setType("text/plain");
+            // Launch sharing dialog for image
+            startActivity(Intent.createChooser(sendIntent, "Share Tweet"));
+        }
     }
 }

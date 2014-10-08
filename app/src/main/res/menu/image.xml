@@ -3,7 +3,7 @@
     tools:context="com.codepath.shivagss.twitterclient.activity.ImageActivity" >
     <item android:id="@+id/action_share"
           android:title="@string/action_share"
-          android:icon="@drawable/ic_action_share"
+          android:icon="@drawable/ic_title_share_default"
           android:orderInCategory="100"
           android:showAsAction="always" />
 </menu>

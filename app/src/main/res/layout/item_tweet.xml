@@ -87,7 +87,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/tvUserName"
             android:autoLink="all"
-            android:linksClickable="true"
             android:text="Eagles up 14-10. Then have two first downs and less than 50 total yards of offense. youtu.be/ugaskjghiT"
             android:textSize="14sp"/>
 
