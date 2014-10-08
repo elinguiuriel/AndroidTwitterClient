@@ -18,6 +18,13 @@ An Androdi Twitter client that supports viewing a Twitter timeline, compose twee
      * User can see picture, tagline, # of followers, # of following, and tweets of clicked user.
      * Profile view should include that user's timeline and photos.
      * User can view following / followers list through the profile
+   * [x] Display tweets in offline mode for home timeline, mentions and user tweets.
+
+
+####Demo (Week 2):
+![Video Walkthrough](demo1.gif)
+####Demo Offline mode (Week 2):
+![Video Walkthrough](demo2.gif)
 
 ####Total time spent(week 1): 16 Hours
 
@@ -40,14 +47,8 @@ An Androdi Twitter client that supports viewing a Twitter timeline, compose twee
    * [x] User can select "reply" from detail view to respond to a tweet
    * [x] User can see embedded image media within the tweet detail view
    * [x] Display media image with TouchImageView and action bar overlay
-   * [x] Display tweets in offline mode for home timeline, mentions and user tweets.
    
 Libraries used: android-async-http-1.4.3, ActiveAndroid-3.1, codepath-oauth-0.3.0.jar, codepath-utils.jar, scribe-codepath.jar, universal-image-loader-1.8.4.jar, picasso-2.3.4.jar and android-support-v4.
 
-
-####Demo(Week 2):
-![Video Walkthrough](demo1.gif)
-####Demo Offline mode(Week 2):
-![Video Walkthrough](demo2.gif)
 ####Demo(Week 1):
 ![Video Walkthrough](demo.gif)
